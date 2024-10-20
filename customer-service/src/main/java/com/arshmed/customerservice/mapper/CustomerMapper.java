@@ -1,5 +1,6 @@
 package com.arshmed.customerservice.mapper;
 
+import com.arshmed.customerservice.dto.CustomerRequest;
 import com.arshmed.customerservice.dto.CustomerResponse;
 import com.arshmed.customerservice.entity.Customer;
 import org.springframework.stereotype.Service;
@@ -15,5 +16,16 @@ public class CustomerMapper {
                 customer.getPhoneNumber(),
                 customer.getAddress()
         );
+    }
+
+    public Customer toCustomer(CustomerRequest request) {
+        return Customer.builder()
+                .id(request.id())
+                .firstname(request.firstname())
+                .lastname(request.lastname())
+                .email(request.email())
+                .phoneNumber(request.phoneNumber())
+                .address(request.address())
+                .build();
     }
 }
