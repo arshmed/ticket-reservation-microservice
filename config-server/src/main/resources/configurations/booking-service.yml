@@ -1,0 +1,12 @@
+spring:
+  data:
+    mongodb:
+      host: localhost
+      username: user
+      password: password
+      port: 27017
+      authentication-database: admin
+      database: bookings
+      auto-index-creation: true
+server:
+  port: 8060

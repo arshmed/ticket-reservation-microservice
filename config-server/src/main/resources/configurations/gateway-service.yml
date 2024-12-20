@@ -1,0 +1,38 @@
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:3000"
+            allowedHeaders: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - OPTIONS
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: customer-service
+          uri: lb:http://CUSTOMER-SERVICE
+          predicates:
+            - Path=/api/v1/customers/**
+        - id: auth-service
+          uri: lb:http://AUTH-SERVICE
+          predicates:
+            - Path=/api/v1/auth/**
+        - id: booking-service-aircraft
+          uri: lb://BOOKING-SERVICE
+          predicates:
+            - Path=/api/v1/aircraft/**
+        - id: booking-service-flights
+          uri: lb://BOOKING-SERVICE
+          predicates:
+            - Path=/api/v1/flights/**
+        - id: booking-service-airports
+          uri: lb://BOOKING-SERVICE
+          predicates:
+            - Path=/api/v1/airports/**
+server:
+  port: 8222

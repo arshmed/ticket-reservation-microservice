@@ -1,8 +1,10 @@
 package com.arshmed.customerservice.service;
 
+import com.arshmed.customerservice.dto.CustomerLoginRequest;
 import com.arshmed.customerservice.dto.CustomerRequest;
 import com.arshmed.customerservice.dto.CustomerResponse;
 import com.arshmed.customerservice.entity.Customer;
+import com.arshmed.customerservice.entity.CustomerType;
 import com.arshmed.customerservice.exception.CustomerException;
 import com.arshmed.customerservice.exception.ErrorType;
 import com.arshmed.customerservice.mapper.CustomerMapper;
@@ -10,8 +12,10 @@ import com.arshmed.customerservice.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
+
+import static com.arshmed.customerservice.exception.ErrorType.EMAIL_ALREADY_EXISTS;
+import static com.arshmed.customerservice.exception.ErrorType.PHONE_NUMBER_ALREADY_EXISTS;
 
 @Service
 @RequiredArgsConstructor
@@ -19,9 +23,16 @@ public class CustomerService {
 
     private final CustomerRepository repository;
     private final CustomerMapper customerMapper;
+    private final CustomerRepository customerRepository;
 
     public CustomerResponse findById(String customerId) {
         return repository.findById(customerId)
+                .map(customerMapper::fromCustomer)
+                .orElseThrow(() -> new CustomerException(ErrorType.CUSTOMER_NOT_FOUND));
+    }
+
+    public CustomerResponse findByEmail(String email) {
+        return repository.findByEmail(email)
                 .map(customerMapper::fromCustomer)
                 .orElseThrow(() -> new CustomerException(ErrorType.CUSTOMER_NOT_FOUND));
     }
@@ -38,7 +49,15 @@ public class CustomerService {
     }
 
     public String createCustomer(CustomerRequest request) {
-        var customer = repository.save(customerMapper.toCustomer(request));
+        var customer = customerMapper.toCustomer(request);
+        if(customerRepository.existsByEmail(request.email())){
+            throw new CustomerException(EMAIL_ALREADY_EXISTS);
+        }
+        if(customerRepository.existsByPhoneNumber(request.phoneNumber())){
+            throw new CustomerException(PHONE_NUMBER_ALREADY_EXISTS);
+        }
+        customer.setCustomerType(CustomerType.valueOf(request.customerType()));
+        repository.save(customer);
         return customer.getId();
     }
 
@@ -47,6 +66,18 @@ public class CustomerService {
                 .orElseThrow(() -> new CustomerException(ErrorType.CUSTOMER_NOT_FOUND));
         mergeCustomer(customer, request);
         repository.save(customer);
+    }
+
+    public Boolean checkEmail(String email) {
+        return repository.existsByEmail(email);
+    }
+
+    public Boolean checkPhoneNumber(String phoneNumber) {
+        return repository.existsByPhoneNumber(phoneNumber);
+    }
+
+    public Boolean checkCustomerCredentials(CustomerLoginRequest request) {
+        return repository.existsByEmailAndPassword(request.email(), request.password());
     }
 
     private void mergeCustomer(Customer customer, CustomerRequest request) {
@@ -69,4 +100,5 @@ public class CustomerService {
             customer.setAddress(request.address());
         }
     }
+
 }

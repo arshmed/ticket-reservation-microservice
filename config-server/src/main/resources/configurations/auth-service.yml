@@ -1,0 +1,5 @@
+server:
+  port: 8070
+application:
+  config:
+    customer-url: http://localhost:8222/api/v1/customers
