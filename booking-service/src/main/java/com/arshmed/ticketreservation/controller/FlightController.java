@@ -5,9 +5,12 @@ import com.arshmed.ticketreservation.dto.response.FlightResponse;
 import com.arshmed.ticketreservation.service.FlightService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.arshmed.ticketreservation.constants.RestApiList.*;
@@ -35,8 +38,16 @@ public class FlightController {
     }
 
     @GetMapping
-    public ResponseEntity<List<FlightResponse>> findAll() {
-        return ResponseEntity.ok(flightService.findAll());
+    public ResponseEntity<Page<FlightResponse>> findAll(
+            @RequestParam int page,
+            @RequestParam int pageSize,
+            @RequestParam(required = false) @DateTimeFormat LocalDateTime startDate,
+            @RequestParam(required = false) @DateTimeFormat LocalDateTime endDate,
+            @RequestParam(required = false) String departureAirportCode,
+            @RequestParam(required = false) String destinationAirportCode
+    ) {
+        Page<FlightResponse> flights = flightService.findAll(page, pageSize, startDate, endDate, departureAirportCode, destinationAirportCode);
+        return ResponseEntity.ok(flights);
     }
 
     @GetMapping("/{flight-id}")

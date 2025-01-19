@@ -18,7 +18,7 @@ public enum ErrorType {
     AIRCRAFT_NOT_FOUND(1006, "Aircraft Not Found", HttpStatus.NOT_FOUND),
     FLIGHT_NOT_FOUND(1007, "Flight Not Found", HttpStatus.NOT_FOUND),
     FLIGHT_NUMBER_CONFLICT(1008, "Flight Number Already Exists", HttpStatus.CONFLICT),
-    FLIGHT_TIME_CONFLICT(1009, "Flight Time Conflict", HttpStatus.CONFLICT),
+    FLIGHT_TIME_CONFLICT(1009, "Flight Time Conflict: The Aircraft Is In Use", HttpStatus.CONFLICT),
     INVALID_DATE_RANGE(1010, "Invalid Flight Dates", HttpStatus.CONFLICT),
     INVALID_TIME_RANGE(1011, "Invalid Flight Times", HttpStatus.CONFLICT),
     AIRPORT_NOT_FOUND(1012, "Airport Not Found", HttpStatus.NOT_FOUND);

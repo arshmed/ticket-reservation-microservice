@@ -7,9 +7,13 @@ import com.arshmed.ticketreservation.exception.BookingException;
 import com.arshmed.ticketreservation.mapper.FlightMapper;
 import com.arshmed.ticketreservation.repository.FlightRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.arshmed.ticketreservation.exception.ErrorType.*;
@@ -23,11 +27,26 @@ public class FlightService {
     private final AircraftService aircraftService;
     private final AirportService airportService;
 
-    public List<FlightResponse> findAll() {
-        return flightRepository.findAll()
-                .stream()
-                .map(flightMapper::fromFlight)
-                .toList();
+    public Page<FlightResponse> findAll(
+            int page,
+            int pageSize,
+            LocalDateTime startDate,
+            LocalDateTime endDate,
+            String departureAirportCode,
+            String destinationAirportCode) {
+
+        Pageable pageable = PageRequest.of(page, pageSize);
+        Page<Flight> flights;
+
+        if (departureAirportCode != null && !departureAirportCode.isEmpty()
+                && destinationAirportCode != null && !destinationAirportCode.isEmpty()) {
+            flights = flightRepository.findAllByDepartureTimeBetweenAndDepartureAirportCodeAndDestinationAirportCode(
+                    startDate, endDate, departureAirportCode, destinationAirportCode, pageable);
+        }  else {
+            flights = flightRepository.findAllByDepartureTimeBetween(startDate, endDate, pageable);
+        }
+
+        return flights.map(flightMapper::fromFlight);
     }
 
     public FlightResponse findById(String id) {
