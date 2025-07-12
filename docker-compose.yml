@@ -51,25 +51,35 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: password
       ME_CONFIG_MONGODB_SERVER: mongodb
 
-  rabbitmq:
-    image: rabbitmq:management
-    container_name: tr_rabbitmq
+#  rabbitmq:
+#    image: rabbitmq:management
+#    container_name: tr_rabbitmq
+#    ports:
+#      - 5672:5672
+#      - 15672:15672
+#    environment:
+#      RABBITMQ_DEFAULT_USER: guest
+#      RABBITMQ_DEFAULT_PASS: guest
+#    volumes:
+#      - rabbitmq_data:/var/lib/rabbitmq
+
+#  mail-dev:
+#    container_name: tr_mail_dev
+#    image: maildev/maildev
+#    ports:
+#      - 1080:1080
+#      - 1025:1025
+
+  redis:
+    container_name: tr_redis
+    image: "bitnami/redis:latest"
+    platform: linux/amd64
     ports:
-      - 5672:5672
-      - 15672:15672
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      - "6379:6379"
     volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-
-  mail-dev:
-    container_name: tr_mail_dev
-    image: maildev/maildev
-    ports:
-      - 1080:1080
-      - 1025:1025
-
+      - ./data:/data
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
 
 networks:
   tr-net:

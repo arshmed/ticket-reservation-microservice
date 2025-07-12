@@ -6,6 +6,7 @@ import com.arshmed.ticketreservation.exception.BookingException;
 import com.arshmed.ticketreservation.mapper.AircraftMapper;
 import com.arshmed.ticketreservation.repository.AircraftRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,6 +43,7 @@ public class AircraftService {
         return aircraft.getId();
     }
 
+    @Cacheable(cacheNames = "aircrafts", key = "#tailNumber")
     public AircraftResponse findByTailNumber(String tailNumber) {
         return aircraftRepository.findByTailNumber(tailNumber)
                 .map(aircraftMapper::fromAircraft)

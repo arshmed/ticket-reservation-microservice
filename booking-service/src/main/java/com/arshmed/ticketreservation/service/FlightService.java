@@ -1,5 +1,6 @@
 package com.arshmed.ticketreservation.service;
 
+import com.arshmed.ticketreservation.dto.PageDto;
 import com.arshmed.ticketreservation.dto.request.FlightRequest;
 import com.arshmed.ticketreservation.dto.response.FlightResponse;
 import com.arshmed.ticketreservation.entity.Flight;
@@ -7,6 +8,9 @@ import com.arshmed.ticketreservation.exception.BookingException;
 import com.arshmed.ticketreservation.mapper.FlightMapper;
 import com.arshmed.ticketreservation.repository.FlightRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +24,7 @@ import static com.arshmed.ticketreservation.exception.ErrorType.*;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class FlightService {
 
     private final FlightRepository flightRepository;
@@ -27,13 +32,21 @@ public class FlightService {
     private final AircraftService aircraftService;
     private final AirportService airportService;
 
-    public Page<FlightResponse> findAll(
-            int page,
-            int pageSize,
-            LocalDateTime startDate,
-            LocalDateTime endDate,
-            String departureAirportCode,
-            String destinationAirportCode) {
+    @Cacheable(
+            value = "flights",
+            key = "'findAll:' + #page + ':' + #pageSize + ':' + T(java.util.Objects).toString(#startDate, 'null') + ':' + T(java.util.Objects).toString(#endDate, 'null') + ':' + T(java.util.Objects).toString(#departureAirportCode, 'null') + ':' + T(java.util.Objects).toString(#destinationAirportCode, 'null')",
+            unless = "#result == null or #result.content().isEmpty()"
+    )
+    public PageDto<FlightResponse> findAll( // <-- Dönüş tipini değiştirin
+                                            int page,
+                                            int pageSize,
+                                            LocalDateTime startDate,
+                                            LocalDateTime endDate,
+                                            String departureAirportCode,
+                                            String destinationAirportCode) {
+
+        log.info("===> CACHE MISS! Uçuşlar veritabanından sorgulanıyor... Parametreler: page={}, pageSize={}, departure={}, destination={}",
+                page, pageSize, departureAirportCode, destinationAirportCode);
 
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Flight> flights;
@@ -46,17 +59,30 @@ public class FlightService {
             flights = flightRepository.findAllByDepartureTimeBetween(startDate, endDate, pageable);
         }
 
-        return flights.map(flightMapper::fromFlight);
+        // Page<Flight>'i Page<FlightResponse>'a map'leyin
+        Page<FlightResponse> flightResponsePage = flights.map(flightMapper::fromFlight);
+
+        // Page<FlightResponse>'ı PageDto<FlightResponse>'a dönüştürün ve return edin
+        return new PageDto<>(
+                flightResponsePage.getContent(),
+                flightResponsePage.getTotalPages(),
+                flightResponsePage.getTotalElements(),
+                flightResponsePage.getNumber(),
+                flightResponsePage.getSize()
+        );
     }
 
+    @Cacheable(cacheNames = "flight_id", key = "#id", unless = "#result == null")
     public FlightResponse findById(String id) {
         return flightRepository.findById(id)
                 .map(flightMapper::fromFlight)
                 .orElseThrow(() -> new BookingException(FLIGHT_NOT_FOUND));
     }
 
+    @CacheEvict(value = "flights", allEntries = true)
     public FlightResponse createFlight(FlightRequest request) {
         validateFlightAvailability(request);
+        System.out.println("here");
 
         LocalDate departureDate = request.departureTime().toLocalDate();
         LocalDate arrivalDate = request.arrivalTime().toLocalDate();
@@ -65,7 +91,10 @@ public class FlightService {
         flight.setDepartureDate(departureDate);
         flight.setArrivalDate(arrivalDate);
 
+        System.out.println("here1");
+
         Flight savedFlight = flightRepository.save(flight);
+        System.out.println("here2");
         return flightMapper.fromFlight(savedFlight);
     }
 

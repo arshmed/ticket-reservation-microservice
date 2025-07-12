@@ -1,5 +1,6 @@
 package com.arshmed.ticketreservation.dto.response;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,5 +22,4 @@ public record FlightResponse(
         LocalDateTime departureTime,
         LocalDateTime arrivalTime,
         BigDecimal flightCharge
-) {
-}
+) implements Serializable {}

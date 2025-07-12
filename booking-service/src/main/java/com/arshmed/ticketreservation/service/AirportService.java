@@ -6,6 +6,7 @@ import com.arshmed.ticketreservation.exception.BookingException;
 import com.arshmed.ticketreservation.mapper.AirportMapper;
 import com.arshmed.ticketreservation.repository.AirportRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,8 +33,9 @@ public class AirportService {
                 .orElseThrow(() -> new BookingException(AIRPORT_NOT_FOUND));
     }
 
-    public AirportResponse findByAirportCode(String code) {
-        return airportRepository.findByAirportCode(code)
+    @Cacheable(cacheNames = "airports", key = "#airportCode")
+    public AirportResponse findByAirportCode(String airportCode) {
+        return airportRepository.findByAirportCode(airportCode)
                 .map(airportMapper::fromAirport)
                 .orElseThrow(() -> new BookingException(AIRPORT_NOT_FOUND));
     }
