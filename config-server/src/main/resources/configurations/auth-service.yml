@@ -1,5 +1,36 @@
 server:
   port: 8070
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/auth
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+rabbitmq:
+  exchange:
+    name: internal.exchange
+  routing-key:
+    customer-creation: internal.customer.routing-key
+
 application:
-  config:
-    customer-url: http://localhost:8222/api/v1/customers
+  security:
+    jwt:
+      secret-key: YS1zdHJpbmctc2VjcmV0LWF0LWxlYXN0LTI1Ni1iaXRzLWxvbmc=
+      access-token:
+        expiration: 86400000 # 1 gün (milisaniye cinsinden)
+      refresh-token:
+        expiration: 604800000 # 7 gün

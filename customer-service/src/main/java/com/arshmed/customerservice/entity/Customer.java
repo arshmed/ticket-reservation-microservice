@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 public class Customer {
     @Id
     private String id;
+    private String authId;
     private String firstname;
     private String lastname;
     private String password;

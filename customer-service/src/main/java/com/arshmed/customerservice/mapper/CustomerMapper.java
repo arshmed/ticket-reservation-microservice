@@ -23,8 +23,8 @@ public class CustomerMapper {
     public Customer toCustomer(CustomerRequest request) {
         return Customer.builder()
                 .id(request.id())
+                .authId(request.authId()) // YENİ
                 .firstname(request.firstname())
-                .password(request.password())
                 .customerType(CustomerType.valueOf(request.customerType()))
                 .lastname(request.lastname())
                 .email(request.email())
