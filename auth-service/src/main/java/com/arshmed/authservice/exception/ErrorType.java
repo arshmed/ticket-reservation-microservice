@@ -14,7 +14,8 @@ public enum ErrorType {
     BAD_REQUEST_ERROR(1003,"İstek formatı hatalı",HttpStatus.BAD_REQUEST),
     EMAIL_EXISTS(1005, "Email Already Exists", HttpStatus.CONFLICT),
     PHONE_NUMBER_EXISTS(1005, "Phone Number Already Exists", HttpStatus.CONFLICT),
-    INVALID_CREDENTIALS(1005, "Email or password is incorrect", HttpStatus.BAD_REQUEST);
+    INVALID_CREDENTIALS(1005, "Email or password is incorrect", HttpStatus.BAD_REQUEST),
+    INVALID_TOKEN(1006, "Geçersiz Token", HttpStatus.UNAUTHORIZED);
 
     int code;
     String message;

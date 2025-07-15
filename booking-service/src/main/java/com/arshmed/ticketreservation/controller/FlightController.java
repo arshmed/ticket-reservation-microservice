@@ -40,7 +40,7 @@ public class FlightController {
     }
 
     @GetMapping
-    public ResponseEntity<PageDto<FlightResponse>> findAll( // <-- Dönüş tipini değiştirin
+    public ResponseEntity<PageDto<FlightResponse>> findAll(
                                                             @RequestParam int page,
                                                             @RequestParam int pageSize,
                                                             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
@@ -49,7 +49,6 @@ public class FlightController {
                                                             @RequestParam(required = false) String destinationAirportCode
     ) {
         long startTime = System.currentTimeMillis();
-        // Servis artık PageDto<FlightResponse> döndürecek
         PageDto<FlightResponse> flights = flightService.findAll(page, pageSize, startDate, endDate, departureAirportCode, destinationAirportCode);
         long endTime = System.currentTimeMillis();
         long duration = endTime - startTime;

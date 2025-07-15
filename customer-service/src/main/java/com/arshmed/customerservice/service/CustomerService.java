@@ -1,6 +1,5 @@
 package com.arshmed.customerservice.service;
 
-import com.arshmed.customerservice.dto.CustomerLoginRequest;
 import com.arshmed.customerservice.dto.CustomerRequest;
 import com.arshmed.customerservice.dto.CustomerResponse;
 import com.arshmed.customerservice.entity.Customer;
@@ -31,8 +30,20 @@ public class CustomerService {
                 .orElseThrow(() -> new CustomerException(ErrorType.CUSTOMER_NOT_FOUND));
     }
 
+    public CustomerResponse findProfileByAuthId(String authId) {
+        return repository.findByAuthId(authId)
+                .map(customerMapper::fromCustomer)
+                .orElseThrow(() -> new CustomerException(ErrorType.CUSTOMER_NOT_FOUND));
+    }
+
     public CustomerResponse findByEmail(String email) {
         return repository.findByEmail(email)
+                .map(customerMapper::fromCustomer)
+                .orElseThrow(() -> new CustomerException(ErrorType.CUSTOMER_NOT_FOUND));
+    }
+
+    public CustomerResponse findByPhoneNumber(String phoneNumber) {
+        return repository.findByPhoneNumber(phoneNumber)
                 .map(customerMapper::fromCustomer)
                 .orElseThrow(() -> new CustomerException(ErrorType.CUSTOMER_NOT_FOUND));
     }
@@ -68,16 +79,8 @@ public class CustomerService {
         repository.save(customer);
     }
 
-    public Boolean checkEmail(String email) {
-        return repository.existsByEmail(email);
-    }
-
-    public Boolean checkPhoneNumber(String phoneNumber) {
-        return repository.existsByPhoneNumber(phoneNumber);
-    }
-
-    public Boolean checkCustomerCredentials(CustomerLoginRequest request) {
-        return repository.existsByEmailAndPassword(request.email(), request.password());
+    public void deleteCustomerById(String customerId) {
+        repository.deleteById(customerId);
     }
 
     private void mergeCustomer(Customer customer, CustomerRequest request) {
