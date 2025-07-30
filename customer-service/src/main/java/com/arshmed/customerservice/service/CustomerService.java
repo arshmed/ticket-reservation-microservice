@@ -10,6 +10,7 @@ import com.arshmed.customerservice.mapper.CustomerMapper;
 import com.arshmed.customerservice.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -64,7 +65,7 @@ public class CustomerService {
         if(customerRepository.existsByEmail(request.email())){
             throw new CustomerException(EMAIL_ALREADY_EXISTS);
         }
-        if(customerRepository.existsByPhoneNumber(request.phoneNumber())){
+        if(request.phoneNumber() != null && customerRepository.existsByPhoneNumber(request.phoneNumber())){
             throw new CustomerException(PHONE_NUMBER_ALREADY_EXISTS);
         }
         customer.setCustomerType(CustomerType.valueOf(request.customerType()));
@@ -72,7 +73,8 @@ public class CustomerService {
         return customer.getId();
     }
 
-    public void updateCustomer(String customerId, CustomerRequest request) {
+    @PreAuthorize("@customerSecurityService.isOwner(#authId, #customerId)")
+    public void updateCustomer(String customerId, String authId, CustomerRequest request) {
         var customer = repository.findById(customerId)
                 .orElseThrow(() -> new CustomerException(ErrorType.CUSTOMER_NOT_FOUND));
         mergeCustomer(customer, request);

@@ -65,10 +65,11 @@ public class CustomerController implements CustomerControllerBase {
     @Override
     @PutMapping("/{customer-id}")
     public ResponseEntity<Void> updateCustomer(
-            @PathVariable(name = "customer-id") String customerId,
+            @PathVariable("customer-id") String customerId,
+            @RequestHeader("X-Auth-User-Id") String authId,
             @RequestBody @Valid CustomerRequest request
     ) {
-        customerService.updateCustomer(customerId, request);
+        customerService.updateCustomer(customerId, authId, request);
         return ResponseEntity.accepted().build();
     }
 

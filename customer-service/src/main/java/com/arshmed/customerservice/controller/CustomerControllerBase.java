@@ -68,6 +68,7 @@ public interface CustomerControllerBase {
     })
     ResponseEntity<Void> updateCustomer(
             @PathVariable("customer-id") @Parameter(description = "Customer ID") String customerId,
+            @RequestHeader("X-Auth-User-Id") String authId,
             @RequestBody @Valid CustomerRequest request
     );
 
