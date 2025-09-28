@@ -1,7 +1,7 @@
 spring:
   data:
     mongodb:
-      host: localhost
+      host: mongodb
       username: user
       password: password
       port: 27017
@@ -9,11 +9,13 @@ spring:
       database: bookings
       auto-index-creation: true
   cache:
-    type: redis
-  redis:
-    host: localhost
-    port: 6379
-    timeout: 6000
+    type: simple
+#  cache:
+#    type: redis
+#  redis:
+#    host: redis
+#    port: 6379
+#    timeout: 6000
 
 
 logging:

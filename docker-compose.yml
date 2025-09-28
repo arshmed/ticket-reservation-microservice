@@ -1,4 +1,89 @@
 services:
+  config-server:
+    build:
+      context: ./config-server
+    container_name: tr_config_server
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./config-server/src/main/resources/configurations:/configurations
+    networks:
+      - tr-net
+    environment:
+      - SPRING_PROFILES_ACTIVE=native
+    depends_on:
+      - postgres
+      - rabbitmq
+      - mongodb
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8888/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  discovery-server:
+    build:
+      context: ./discovery-server
+    container_name: tr_discovery_server
+    ports:
+      - "8761:8761"
+    networks:
+      - tr-net
+    depends_on:
+      config-server:
+        condition: service_healthy
+
+  gateway:
+    build:
+      context: ./gateway
+    container_name: tr_gateway
+    ports:
+      - "8222:8222"
+    networks:
+      - tr-net
+    depends_on:
+      - discovery-server
+
+  auth-service:
+    build:
+      context: ./auth-service
+    container_name: tr_auth_service
+    ports:
+      - "8070:8070"
+    networks:
+      - tr-net
+    depends_on:
+      - discovery-server
+      - postgres
+      - rabbitmq
+
+  customer-service:
+    build:
+      context: ./customer-service
+    container_name: tr_customer_service
+    ports:
+      - "8090:8090"
+    networks:
+      - tr-net
+    depends_on:
+      - discovery-server
+      - mongodb
+      - rabbitmq
+
+  booking-service:
+    build:
+      context: ./booking-service
+    container_name: tr_booking_service
+    ports:
+      - "8060:8060"
+    networks:
+      - tr-net
+    depends_on:
+      discovery-server:
+        condition: service_started
+      mongodb:
+        condition: service_started
+
   postgres:
     container_name: tr_pg_sql
     image: postgres
@@ -34,6 +119,8 @@ services:
     image: mongo
     ports:
       - 27017:27017
+    networks:
+      - tr-net
     volumes:
       - mongo:/data/db
     environment:
@@ -57,11 +144,32 @@ services:
     ports:
       - 5672:5672
       - 15672:15672
+    networks:
+      - tr-net
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+
+
+#  redis:
+#    container_name: tr_redis
+#    image: redis:7.2
+#    platform: linux/amd64
+#    ports:
+#      - "6379:6379"
+#    networks:
+#      - tr-net
+#    volumes:
+#      - ./data:/data
+##    environment:
+##      - ALLOW_EMPTY_PASSWORD=yes
+#    healthcheck:
+#      test: [ "CMD", "redis-cli", "ping" ]
+#      interval: 5s
+#      timeout: 3s
+#      retries: 5
 
 #  mail-dev:
 #    container_name: tr_mail_dev
@@ -69,17 +177,6 @@ services:
 #    ports:
 #      - 1080:1080
 #      - 1025:1025
-
-  redis:
-    container_name: tr_redis
-    image: "bitnami/redis:latest"
-    platform: linux/amd64
-    ports:
-      - "6379:6379"
-    volumes:
-      - ./data:/data
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
 
 networks:
   tr-net:

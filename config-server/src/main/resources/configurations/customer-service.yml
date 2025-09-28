@@ -4,12 +4,12 @@ spring:
       username: user
       password: password
       database: customers
-      host: localhost
+      host: mongodb
       port: 27017
       authentication-database: admin
       auto-index-creation: true
   rabbitmq:
-    host: localhost
+    host: rabbitmq
     port: 5672
     username: guest
     password: guest

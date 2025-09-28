@@ -32,11 +32,11 @@ public class FlightService {
     private final AircraftService aircraftService;
     private final AirportService airportService;
 
-    @Cacheable(
-            value = "flights",
-            key = "'findAll:' + #page + ':' + #pageSize + ':' + T(java.util.Objects).toString(#startDate, 'null') + ':' + T(java.util.Objects).toString(#endDate, 'null') + ':' + T(java.util.Objects).toString(#departureAirportCode, 'null') + ':' + T(java.util.Objects).toString(#destinationAirportCode, 'null')",
-            unless = "#result == null or #result.content().isEmpty()"
-    )
+//    @Cacheable(
+//            value = "flights",
+//            key = "'findAll:' + #page + ':' + #pageSize + ':' + T(java.util.Objects).toString(#startDate, 'null') + ':' + T(java.util.Objects).toString(#endDate, 'null') + ':' + T(java.util.Objects).toString(#departureAirportCode, 'null') + ':' + T(java.util.Objects).toString(#destinationAirportCode, 'null')",
+//            unless = "#result == null or #result.content().isEmpty()"
+//    )
     public PageDto<FlightResponse> findAll( // <-- Dönüş tipini değiştirin
                                             int page,
                                             int pageSize,
@@ -72,14 +72,14 @@ public class FlightService {
         );
     }
 
-    @Cacheable(cacheNames = "flight_id", key = "#id", unless = "#result == null")
+//    @Cacheable(cacheNames = "flight_id", key = "#id", unless = "#result == null")
     public FlightResponse findById(String id) {
         return flightRepository.findById(id)
                 .map(flightMapper::fromFlight)
                 .orElseThrow(() -> new BookingException(FLIGHT_NOT_FOUND));
     }
 
-    @CacheEvict(value = "flights", allEntries = true)
+//    @CacheEvict(value = "flights", allEntries = true)
     public FlightResponse createFlight(FlightRequest request) {
         validateFlightAvailability(request);
         System.out.println("here");
