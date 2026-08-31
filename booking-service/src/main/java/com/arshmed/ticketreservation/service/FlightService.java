@@ -2,11 +2,14 @@ package com.arshmed.ticketreservation.service;
 
 import com.arshmed.ticketreservation.dto.PageDto;
 import com.arshmed.ticketreservation.dto.request.FlightRequest;
+import com.arshmed.ticketreservation.dto.response.FlightDetailResponse;
 import com.arshmed.ticketreservation.dto.response.FlightResponse;
 import com.arshmed.ticketreservation.entity.Flight;
 import com.arshmed.ticketreservation.exception.BookingException;
 import com.arshmed.ticketreservation.mapper.FlightMapper;
 import com.arshmed.ticketreservation.repository.FlightRepository;
+import com.arshmed.ticketreservation.service.SeatService;
+import com.arshmed.ticketreservation.service.PricingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -16,9 +19,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.arshmed.ticketreservation.exception.ErrorType.*;
 
@@ -31,6 +37,8 @@ public class FlightService {
     private final FlightMapper flightMapper;
     private final AircraftService aircraftService;
     private final AirportService airportService;
+    private final SeatService seatService;
+    private final PricingService pricingService;
 
 //    @Cacheable(
 //            value = "flights",
@@ -51,11 +59,23 @@ public class FlightService {
         Pageable pageable = PageRequest.of(page, pageSize);
         Page<Flight> flights;
 
-        if (departureAirportCode != null && !departureAirportCode.isEmpty()
+        if (startDate == null && endDate == null) {
+            if (departureAirportCode != null && !departureAirportCode.isEmpty()
+                    && destinationAirportCode != null && !destinationAirportCode.isEmpty()) {
+                flights = flightRepository.findAllByDepartureAirportCodeAndDestinationAirportCode(
+                        departureAirportCode, destinationAirportCode, pageable);
+            } else if (departureAirportCode != null && !departureAirportCode.isEmpty()) {
+                flights = flightRepository.findAllByDepartureAirportCode(departureAirportCode, pageable);
+            } else if (destinationAirportCode != null && !destinationAirportCode.isEmpty()) {
+                flights = flightRepository.findAllByDestinationAirportCode(destinationAirportCode, pageable);
+            } else {
+                flights = flightRepository.findAll(pageable);
+            }
+        } else if (departureAirportCode != null && !departureAirportCode.isEmpty()
                 && destinationAirportCode != null && !destinationAirportCode.isEmpty()) {
             flights = flightRepository.findAllByDepartureTimeBetweenAndDepartureAirportCodeAndDestinationAirportCode(
                     startDate, endDate, departureAirportCode, destinationAirportCode, pageable);
-        }  else {
+        } else {
             flights = flightRepository.findAllByDepartureTimeBetween(startDate, endDate, pageable);
         }
 
@@ -94,7 +114,7 @@ public class FlightService {
         System.out.println("here1");
 
         Flight savedFlight = flightRepository.save(flight);
-        System.out.println("here2");
+        seatService.generateSeatsForFlight(savedFlight);
         return flightMapper.fromFlight(savedFlight);
     }
 
@@ -139,4 +159,45 @@ public class FlightService {
         }
     }
 
+    public Flight findFlightEntity(String id) {
+        return flightRepository.findById(id)
+                .orElseThrow(() -> new BookingException(FLIGHT_NOT_FOUND));
+    }
+
+    public FlightDetailResponse getFlightDetail(String id) {
+        Flight flight = findFlightEntity(id);
+
+        com.arshmed.ticketreservation.dto.response.AircraftResponse aircraft =
+                aircraftService.findByTailNumber(flight.getAircraftTailNumber());
+        com.arshmed.ticketreservation.dto.response.AirportResponse depAirport =
+                airportService.findByAirportCode(flight.getDepartureAirportCode());
+        com.arshmed.ticketreservation.dto.response.AirportResponse destAirport =
+                airportService.findByAirportCode(flight.getDestinationAirportCode());
+
+        Map<String, Map<String, Long>> seatStats = seatService.getSeatStatsByFlight(id);
+        Map<String, FlightDetailResponse.SeatClassInfo> seatClasses = new LinkedHashMap<>();
+        for (String seatClass : List.of("ECONOMY", "BUSINESS", "FIRST")) {
+            Map<String, Long> classStats = seatStats.get(seatClass);
+            int totalSeats = classStats.get("total").intValue();
+            int bookedSeats = classStats.get("booked").intValue();
+            BigDecimal basePrice = flight.getFlightCharge();
+            BigDecimal currentPrice = pricingService.calculateDynamicPrice(
+                    basePrice, seatClass, totalSeats, bookedSeats);
+            seatClasses.put(seatClass, new FlightDetailResponse.SeatClassInfo(
+                    seatClass, totalSeats, totalSeats - bookedSeats,
+                    basePrice.multiply(pricingService.getClassMultiplier(seatClass)),
+                    currentPrice, "USD"));
+        }
+
+        return new FlightDetailResponse(
+                flight.getId(), flight.getFlightNumber(),
+                flight.getAircraftTailNumber(),
+                aircraft.manufacturer(), aircraft.model(),
+                flight.getDepartureAirportCode(), depAirport.airportName(),
+                flight.getDestinationAirportCode(), destAirport.airportName(),
+                depAirport.city(), destAirport.city(),
+                flight.getDepartureDate(), flight.getArrivalDate(),
+                flight.getDepartureTime(), flight.getArrivalTime(),
+                flight.getFlightCharge(), seatClasses);
+    }
 }

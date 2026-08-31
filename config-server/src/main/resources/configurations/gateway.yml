@@ -67,6 +67,66 @@ spring:
               args:
                 name: bookingServiceCB
                 fallbackUri: forward:/fallback/booking
+        - id: booking-service-bookings
+          uri: lb://BOOKING-SERVICE
+          predicates:
+            - Path=/api/v1/bookings/**
+          filters:
+            - name: AuthenticationFilter
+            - name: CircuitBreaker
+              args:
+                name: bookingServiceCB
+                fallbackUri: forward:/fallback/booking
+        - id: booking-service-seats
+          uri: lb://BOOKING-SERVICE
+          predicates:
+            - Path=/api/v1/seats/**
+          filters:
+            - name: AuthenticationFilter
+            - name: CircuitBreaker
+              args:
+                name: bookingServiceCB
+                fallbackUri: forward:/fallback/booking
+        - id: booking-service-miles
+          uri: lb://BOOKING-SERVICE
+          predicates:
+            - Path=/api/v1/miles/**
+          filters:
+            - name: AuthenticationFilter
+            - name: CircuitBreaker
+              args:
+                name: bookingServiceCB
+                fallbackUri: forward:/fallback/booking
+        - id: booking-service-calendar
+          uri: lb://BOOKING-SERVICE
+          predicates:
+            - Path=/api/v1/calendar/**
+          filters:
+            - name: AuthenticationFilter
+            - name: CircuitBreaker
+              args:
+                name: bookingServiceCB
+                fallbackUri: forward:/fallback/booking
+        - id: booking-service-ancillary
+          uri: lb://BOOKING-SERVICE
+          predicates:
+            - Path=/api/v1/ancillary/**
+          filters:
+            - name: AuthenticationFilter
+            - name: CircuitBreaker
+              args:
+                name: bookingServiceCB
+                fallbackUri: forward:/fallback/booking
+        - id: booking-service-checkin
+          uri: lb://BOOKING-SERVICE
+          predicates:
+            - Path=/api/v1/checkin/**
+          filters:
+            - name: AuthenticationFilter
+            - name: CircuitBreaker
+              args:
+                name: bookingServiceCB
+                fallbackUri: forward:/fallback/booking
 server:
   port: 8222
 

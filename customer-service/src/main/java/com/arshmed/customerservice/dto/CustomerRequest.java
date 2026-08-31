@@ -19,6 +19,10 @@ public record CustomerRequest(
         @Pattern(regexp = "^([IC])$", message = "Customer Type must be either 'I' or 'C'")
         String customerType,
         Address address,
-        String authId
+        String authId,
+        String profilePhoto,
+        String dateOfBirth,
+        String gender,
+        String nationality
 ) {
 }

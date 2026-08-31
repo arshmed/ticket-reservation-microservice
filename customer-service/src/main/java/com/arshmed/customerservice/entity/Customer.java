@@ -30,6 +30,12 @@ public class Customer {
     private Address address;
     @Field(targetType = FieldType.STRING)
     private CustomerType customerType;
+    private String profilePhoto;
+    private String dateOfBirth;
+    private String gender;
+    private String nationality;
+    private Long totalMiles;
+    private Long availableMiles;
     @CreatedDate
     private LocalDateTime createdAt;
     @LastModifiedDate

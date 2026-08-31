@@ -62,6 +62,14 @@ public class CustomerController implements CustomerControllerBase {
         return ResponseEntity.ok(customerService.findById(customerId));
     }
 
+    @PutMapping("/profile")
+    public ResponseEntity<CustomerResponse> updateProfile(
+            @RequestHeader("X-Auth-User-Id") String authId,
+            @RequestBody CustomerRequest request
+    ) {
+        return ResponseEntity.ok(customerService.updateProfile(authId, request));
+    }
+
     @Override
     @PutMapping("/{customer-id}")
     public ResponseEntity<Void> updateCustomer(

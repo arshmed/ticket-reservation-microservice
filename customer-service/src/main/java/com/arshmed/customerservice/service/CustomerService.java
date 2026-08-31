@@ -73,6 +73,14 @@ public class CustomerService {
         return customer.getId();
     }
 
+    public CustomerResponse updateProfile(String authId, CustomerRequest request) {
+        var customer = repository.findByAuthId(authId)
+                .orElseThrow(() -> new CustomerException(ErrorType.CUSTOMER_NOT_FOUND));
+        mergeCustomer(customer, request);
+        var saved = repository.save(customer);
+        return customerMapper.fromCustomer(saved);
+    }
+
     @PreAuthorize("@customerSecurityService.isOwner(#authId, #customerId)")
     public void updateCustomer(String customerId, String authId, CustomerRequest request) {
         var customer = repository.findById(customerId)
@@ -103,6 +111,18 @@ public class CustomerService {
         }
         if(request.address() != null) {
             customer.setAddress(request.address());
+        }
+        if(StringUtils.isNotBlank(request.profilePhoto())) {
+            customer.setProfilePhoto(request.profilePhoto());
+        }
+        if(StringUtils.isNotBlank(request.dateOfBirth())) {
+            customer.setDateOfBirth(request.dateOfBirth());
+        }
+        if(StringUtils.isNotBlank(request.gender())) {
+            customer.setGender(request.gender());
+        }
+        if(StringUtils.isNotBlank(request.nationality())) {
+            customer.setNationality(request.nationality());
         }
     }
 

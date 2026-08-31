@@ -2,11 +2,9 @@ package com.arshmed.ticketreservation.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @AllArgsConstructor
-@NoArgsConstructor
 @Getter
 public enum ErrorType {
     INTERNAL_SERVER_ERROR(1000,"Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR),
@@ -21,11 +19,15 @@ public enum ErrorType {
     FLIGHT_TIME_CONFLICT(1009, "Flight Time Conflict: The Aircraft Is In Use", HttpStatus.CONFLICT),
     INVALID_DATE_RANGE(1010, "Invalid Flight Dates", HttpStatus.CONFLICT),
     INVALID_TIME_RANGE(1011, "Invalid Flight Times", HttpStatus.CONFLICT),
-    AIRPORT_NOT_FOUND(1012, "Airport Not Found", HttpStatus.NOT_FOUND);
-
+    AIRPORT_NOT_FOUND(1012, "Airport Not Found", HttpStatus.NOT_FOUND),
+    SEAT_NOT_AVAILABLE(1013, "Seat Not Available", HttpStatus.CONFLICT),
+    INSUFFICIENT_MILES(1014, "Insufficient Miles", HttpStatus.BAD_REQUEST),
+    BOOKING_NOT_FOUND(1015, "Booking Not Found", HttpStatus.NOT_FOUND),
+    CHECKIN_NOT_FOUND(1016, "Check-In Not Found", HttpStatus.NOT_FOUND),
+    FLIGHT_DEPARTED(1017, "This flight has already departed or is too close to departure", HttpStatus.BAD_REQUEST),
+    INVALID_DISCOUNT(1018, "Invalid discount type for passenger age", HttpStatus.BAD_REQUEST);
 
     int code;
     String message;
     HttpStatus httpStatus;
-
 }

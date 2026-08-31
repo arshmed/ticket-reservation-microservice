@@ -2,6 +2,7 @@ package com.arshmed.ticketreservation.controller;
 
 import com.arshmed.ticketreservation.dto.PageDto;
 import com.arshmed.ticketreservation.dto.request.FlightRequest;
+import com.arshmed.ticketreservation.dto.response.FlightDetailResponse;
 import com.arshmed.ticketreservation.dto.response.FlightResponse;
 import com.arshmed.ticketreservation.service.FlightService;
 import jakarta.validation.Valid;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static com.arshmed.ticketreservation.constants.RestApiList.*;
 
@@ -60,6 +62,12 @@ public class FlightController {
     @GetMapping("/{flight-id}")
     public ResponseEntity<FlightResponse> findById(@PathVariable(name = "flight-id") String id) {
         return ResponseEntity.ok(flightService.findById(id));
+    }
+
+    @GetMapping(FLIGHT_DETAIL + "/{flight-id}")
+    public ResponseEntity<FlightDetailResponse> getFlightDetail(
+            @PathVariable(name = "flight-id") String id) {
+        return ResponseEntity.ok(flightService.getFlightDetail(id));
     }
 
 }

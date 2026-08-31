@@ -16,20 +16,32 @@ public class CustomerMapper {
                 customer.getCustomerType(),
                 customer.getEmail(),
                 customer.getPhoneNumber(),
-                customer.getAddress()
+                customer.getAddress(),
+                customer.getProfilePhoto(),
+                customer.getDateOfBirth(),
+                customer.getGender(),
+                customer.getNationality(),
+                customer.getTotalMiles(),
+                customer.getAvailableMiles()
         );
     }
 
     public Customer toCustomer(CustomerRequest request) {
         return Customer.builder()
                 .id(request.id())
-                .authId(request.authId()) // YENİ
+                .authId(request.authId())
                 .firstname(request.firstname())
                 .customerType(CustomerType.valueOf(request.customerType()))
                 .lastname(request.lastname())
                 .email(request.email())
                 .phoneNumber(request.phoneNumber())
                 .address(request.address())
+                .profilePhoto(request.profilePhoto())
+                .dateOfBirth(request.dateOfBirth())
+                .gender(request.gender())
+                .nationality(request.nationality())
+                .totalMiles(0L)
+                .availableMiles(0L)
                 .build();
     }
 }

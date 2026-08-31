@@ -11,6 +11,12 @@ public record CustomerResponse(
         CustomerType customerType,
         String email,
         String phoneNumber,
-        Address address
+        Address address,
+        String profilePhoto,
+        String dateOfBirth,
+        String gender,
+        String nationality,
+        Long totalMiles,
+        Long availableMiles
 ) {
 }

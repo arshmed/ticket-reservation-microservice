@@ -13,6 +13,9 @@ public interface FlightRepository extends MongoRepository<Flight, String> {
     Page<Flight> findAllByDepartureTimeBetween(LocalDateTime start, LocalDateTime end, Pageable pageable);
     Page<Flight> findAllByDepartureTimeBetweenAndDepartureAirportCodeAndDestinationAirportCode(
             LocalDateTime start, LocalDateTime end, String departureAirportCode, String destinationAirportCode, Pageable pageable);
+    Page<Flight> findAllByDepartureAirportCodeAndDestinationAirportCode(String departureAirportCode, String destinationAirportCode, Pageable pageable);
+    Page<Flight> findAllByDepartureAirportCode(String departureAirportCode, Pageable pageable);
+    Page<Flight> findAllByDestinationAirportCode(String destinationAirportCode, Pageable pageable);
     Optional<Flight> findOptionalByFlightNumber(String flightNumber);
     List<Flight> findAllByAircraftTailNumber(String aircraftTailNumber);
     List<Flight> findAllByDepartureAirportCode(String airportCode);

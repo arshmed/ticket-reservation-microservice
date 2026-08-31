@@ -23,10 +23,11 @@ public class CustomerCreationListener {
                 event.firstname(),
                 event.lastname(),
                 event.email(),
-                null, 
+                null,
                 "I",
                 null,
-                event.authId()
+                event.authId(),
+                null, null, null, null
         );
         
         customerService.createCustomer(request);

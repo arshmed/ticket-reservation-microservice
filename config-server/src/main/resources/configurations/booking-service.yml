@@ -21,6 +21,7 @@ spring:
 logging:
   level:
     org.springframework.data.redis: DEBUG
+    com.arshmed.ticketreservation.config: DEBUG
 
 server:
   port: 8060
